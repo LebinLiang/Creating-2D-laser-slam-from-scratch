@@ -1,0 +1,43 @@
+
+<launch>
+
+    <!-- bag的地址与名称 -->
+    <arg name="bag_filename" default="/home/lx/bagfiles/lesson3.bag"/>
+
+    <!-- 使用bag的时间戳 -->
+    <param name="use_sim_time" value="true" />
+
+    <!-- base_link to front_laser_link -->
+    <node pkg="tf" type="static_transform_publisher" name="link_broadcaster" 
+        args="0 0 0.254 0 0 3.1415926 base_link front_laser_link 50" />
+
+    <!-- 启动 hector_slam  -->
+    <node pkg="lesson4" type="lesson4_hector_slam_node" name="lesson4_hector_slam_node" output="screen">
+        <param name="pub_map_baselink_tf" value="true"/>
+        <param name="pub_map_odom_tf" value="true"/>
+        <param name="pub_odometry_topic" value="true"/>
+        <param name="tracking_frame" value="base_link"/>
+
+        <param name="scan_topic" value="laser_scan"/>
+        <param name="scan_frame" value="front_laser_link"/>
+        <param name="use_max_scan_range" value="20"/>
+        <param name="laser_min_dist" value="0.2"/>
+        <param name="laser_max_dist" value="30"/>
+
+        <param name="map_pub_period" value="2"/>
+        <param name="map_resolution" value="0.05"/>
+        <param name="map_multi_res_levels" value="３"/>
+
+        <param name="map_update_distance_thresh" value="0.4"/>
+        <param name="map_update_angle_thresh" value="0.9"/>
+    </node>
+    
+    <!-- launch rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" required="true"
+        args="-d $(find lesson4)/config/hector_slam.rviz" />
+
+    <!-- play bagfile -->
+    <node name="playbag" pkg="rosbag" type="play"
+        args="--clock $(arg bag_filename)" />
+
+</launch>
